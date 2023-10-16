@@ -8,7 +8,7 @@ The playbook will update the system, install Docker, and then deploy the Docker 
 I have included a bootstrap script that clones the repo, asks the user for the username and IP address of the server, and then runs the playbook. You can run the script like this:
 
 ```bash
-wget https://raw.githubusercontent.com/rishavnandi/ansible_homelab/master/bootstrap.py && python3 bootstrap.py
+wget https://raw.githubusercontent.com/zaffron/public_ansible_homelab/master/bootstrap.py && python3 bootstrap.py
 ```
 
 ## Using Traefik as a reverse proxy
@@ -43,19 +43,15 @@ and this for sqlite_encryption_key:
 - authelia_admin_mail: email of the authelia admin user
 - authelia_admin_argon2id: argon2id hash of the password for admin user, see how to generate one in the [Authelia docs](https://www.authelia.com/reference/guides/passwords/)
 
-## Blog post
-
-I have written a blog post about this repo, you can find it here: [https://www.rishavnandi.com/posts/Ansible_homelab](https://www.rishavnandi.com/posts/Ansible_homelab)
-
 ## Usage
 
 - Clone the repo to your local machine
 
 ```bash
-git clone https://github.com/rishavnandi/ansible_homelab.git
+git clone https://github.com/zaffron/public_ansible_homelab.git
 ```
 
-- Update the inventory file with the IP address of your server and the user you want to use to connect to the server and add the path to your ssh key, incase you are not using ssh keys (you should always use ssh keys for security) then you can replace the `ansible_ssh_private_key_file` with `ansible_ssh_pass` and add the password for the user. 
+- Update the inventory file with the IP address of your server and the user you want to use to connect to the server and add the path to your ssh key, incase you are not using ssh keys (you should always use ssh keys for security) then you can replace the `ansible_ssh_private_key_file` with `ansible_ssh_pass` and add the password for the user.
 
 - Also update the `group_vars/vars.yml` file with the correct variables for your setup, for the pgid and puid, you can find the correct values by running the `id` command on your server and using the values for the `uid` and `gid` fields.
 
@@ -75,28 +71,13 @@ If you don't want to run some of the apps, you can easily remove them from the `
 
 If you want to learn more about any of the apps, you can check out the [awesome selfhosted repo](https://github.com/awesome-selfhosted/awesome-selfhosted).
 
-## Included Terraform script
-
-I have included a Terraform script that I use to quickly spin up an AWS instance to run the playbook on. You can use this script to spin up an instance, or you can use it as a reference to create your own Terraform script.
-You can find more info about using Terraform with AWS here: [https://learn.hashicorp.com/tutorials/terraform/aws-build](https://learn.hashicorp.com/tutorials/terraform/aws-build)
-
-## Goals
-
-- [x] Add support for Ubuntu 22.04
-- [x] Add support for Debian 11
-- [x] Add support for RedHat based distros (Fedora, CentOS)
-- [x] Find a permanent fix for the Docker install issue on Ubuntu 22.04
-
 ## Credits
 
 - [Jeff Geerling](https://www.jeffgeerling.com/) for all the awesome Ansible content
 - [linuxserver.io](https://linuxserver.io/) for the Docker containers
 - [Ansible docs](https://docs.ansible.com/ansible/latest/) for the Ansible documentation
 - [Wolfgang's infra repo](https://github.com/notthebee/infra) for the Docker install fix for Ubuntu 22.04
-
-## Star History
-
-![star-history-2023916](https://github.com/rishavnandi/ansible_homelab/assets/101431112/f0475fad-e589-4b8d-9418-0829baf53766)
+- [Rishab Nandi](https://github.com/rishavnandi) for the original repo
 
 
 ## If get disk I/O errors

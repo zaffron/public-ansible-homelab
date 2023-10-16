@@ -1,0 +1,73 @@
+---
+username: "<username>"
+
+docker_dir: /home/{{ username }}/docker_apps
+data_dir: /home/{{ username }}/data
+
+puid: "<puid>"
+
+pgid: "<pgid>"
+
+ip_address: "<server_ip>"
+
+domain: "<domain_name>"
+
+timezone: "<timezone>"
+timezone_title_case: "<timezone_title_case>"
+
+pihole_interface: "<pihole_interface>"
+pihole_webpassword: "<pihole_web_password>"
+
+wg_password: "<wg_pass>"
+
+# cloudflare
+cloudflare_email: "<cloudflare_email>"
+cloudflare_dns_api_token: "<cloudflare_dns_api_token>"
+cloudflare_zone_api_token: "<cloudflare_zone_api_token>"
+
+# traefik
+traefik_basic_auth_hash: "<traefik_basic_auth_hash>"
+
+# authelia
+authelia_sqlite_encryption_key: "<authelia_sqlite_encryption_key>"
+google_mail: "<google_mail>"
+google_insecure_app_pass: "<google_insecure_app_pass>"
+authelia_admin_mail: "<authelia_admin_mail>"
+authelia_admin_argon2id_pass: "<authelia_admin_argon2id_pass>"
+jwt_secret: "<jwt_secret>"
+
+
+# photoprism
+photoprism_mysql_user: "<photoprism_mysql_user>"
+photoprism_mysql_db: "<photoprism_mysql_db>"
+photoprism_mysql_root_password: "<photoprism_mysql_root_password>"
+photoprism_mysql_password: "<photoprism_mysql_password>"
+photoprism_admin_password: "<photoprism_admin_password>"
+
+# plex
+plex_claim: "<plex_claim>"
+
+packages:
+  - unzip
+  - wget
+  - curl
+  - git
+  - python3
+  - python3-pip
+
+pip_packages:
+  - ansible
+  - github3.py
+  - docker
+
+docker_dependencies:
+  - ca-certificates
+  - gnupg
+  - curl
+
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin

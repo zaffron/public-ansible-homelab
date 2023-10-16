@@ -5,9 +5,9 @@ import subprocess
 import shutil
 
 # Clone the repository
-# subprocess.run(
-#     ['git', 'clone', 'https://github.com/zaffron/public_ansible_homelab.git'])
-# os.chdir('public_ansible_homelab')
+subprocess.run(
+    ['git', 'clone', 'https://github.com/zaffron/public_ansible_homelab.git'])
+os.chdir('public_ansible_homelab')
 
 # Read user input
 username = input("Enter username: ")
