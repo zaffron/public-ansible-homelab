@@ -1,0 +1,33 @@
+---
+- name: Create calibre container
+  community.docker.docker_container:
+    name: calibre
+    image: lscr.io/linuxserver/calibre
+    pull: true
+    state: started
+    restart_policy: unless-stopped
+    env:
+      PUID: "{{ puid }}"
+      PGID: "{{ pgid }}"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ docker_dir }}/calibre:/config"
+      - "{{ docker_dir }}/calibre/upload:/uploads"
+      - "{{ docker_dir }}/calibre/plugins:/plugins"
+      - "{{ data_dir }}/books:/Calibre_Library"
+    networks:
+      - name: homelab
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.calibre.entrypoints: "http"
+      traefik.http.routers.calibre.rule: "Host(`calibre.{{ domain }}`)"
+      traefik.http.middlewares.calibre-https-redirect.redirectscheme.scheme: "https"
+      traefik.http.routers.calibre.middlewares: "calibre-https-redirect"
+      traefik.http.routers.calibre-secure.entrypoints: "https"
+      traefik.http.routers.calibre-secure.rule: "Host(`calibre.{{ domain }}`)"
+      traefik.http.routers.calibre-secure.tls: "true"
+      traefik.http.routers.calibre-secure.service: "calibre"
+      traefik.http.routers.calibre-secure.middlewares: "authelia@docker"
+      traefik.http.services.calibre.loadbalancer.server.port: "8080"
+      traefik.docker.network: "homelab"
+      com.centurylinklabs.watchtower.enable: "true"

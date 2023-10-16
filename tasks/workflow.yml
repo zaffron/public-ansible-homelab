@@ -1,0 +1,29 @@
+---
+- name: Create workflow container
+  community.docker.docker_container:
+    name: workflow
+    image: docker.n8n.io/n8nio/n8n
+    state: started
+    restart_policy: unless-stopped
+    pull: true
+    volumes:
+      - "{{ docker_dir }}/workflow:/home/node/.workflow"
+    networks:
+      - name: homelab
+    env:
+      GENERIC_TIMEZONE: "{{ timezone }}"
+      TZ: "{{ timezone }}"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.workflow.entrypoints: "http"
+      traefik.http.routers.workflow.rule: "Host(`workflow.{{ domain }}`)"
+      traefik.http.middlewares.workflow-https-redirect.redirectscheme.scheme: "https"
+      traefik.http.routers.workflow.middlewares: "workflow-https-redirect"
+      traefik.http.routers.workflow-secure.entrypoints: "https"
+      traefik.http.routers.workflow-secure.rule: "Host(`workflow.{{ domain }}`)"
+      traefik.http.routers.workflow-secure.tls: "true"
+      traefik.http.routers.workflow-secure.service: "workflow"
+      traefik.http.routers.workflow-secure.middlewares: "authelia@docker"
+      traefik.http.services.workflow.loadbalancer.server.port: "5678"
+      traefik.docker.network: "homelab"
+      com.centurylinklabs.watchtower.enable: "true"

@@ -1,0 +1,51 @@
+---
+- name: Create patch-session-protection config file for calibre-web
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      echo "**** patching calibre-web - removing session protection ****"
+
+      sed -i "/lm.session_protection = 'strong'/d" /app/calibre-web/cps/__init__.py
+      sed -i "/if not ub.check_user_session(current_user.id, flask_session.get('_id')) and 'opds' not in request.path:/d" /app/calibre-web/cps/admin.py
+      sed -i "/logout_user()/d" /app/calibre-web/cps/admin.py
+    dest: "{{ docker_dir }}/calibre-web/custom-cont-init.d/patch-session-protection.sh"
+    mode: '0644'
+    owner: "{{ username }}"
+    group: "{{ username }}"
+
+- name: Make the calibre script executable
+  ansible.builtin.command:
+    cmd: chmod +x "{{ docker_dir }}/calibre-web/custom-cont-init.d/patch-session-protection.sh"
+
+- name: Create calibre-web container
+  community.docker.docker_container:
+    name: calibre-web
+    image: lscr.io/linuxserver/calibre-web
+    pull: true
+    state: started
+    restart_policy: unless-stopped
+    env:
+      PUID: "{{ puid }}"
+      PGID: "{{ pgid }}"
+      TZ: "{{ timezone_title_case }}"
+      DOCKER_MODS: "linuxserver/mods:universal-calibre" #optional
+    volumes:
+      - "{{ docker_dir }}/calibre-web:/config"
+      - "{{ docker_dir }}/calibre-web/custom-cont-init.d:/custom-cont-init.d:ro"
+      - "{{ data_dir }}/books:/books"
+    networks:
+      - name: homelab
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.calibre-web.entrypoints: "http"
+      traefik.http.routers.calibre-web.rule: "Host(`books.{{ domain }}`)"
+      traefik.http.middlewares.calibre-web-https-redirect.redirectscheme.scheme: "https"
+      traefik.http.routers.calibre-web.middlewares: "calibre-web-https-redirect"
+      traefik.http.routers.calibre-web-secure.entrypoints: "https"
+      traefik.http.routers.calibre-web-secure.rule: "Host(`books.{{ domain }}`)"
+      traefik.http.routers.calibre-web-secure.tls: "true"
+      traefik.http.routers.calibre-web-secure.service: "calibre-web"
+      traefik.http.routers.calibre-web-secure.middlewares: "authelia@docker"
+      traefik.http.services.calibre-web.loadbalancer.server.port: "8083"
+      traefik.docker.network: "homelab"
+      com.centurylinklabs.watchtower.enable: "true"

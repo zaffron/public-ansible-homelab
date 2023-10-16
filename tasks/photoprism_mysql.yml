@@ -1,0 +1,20 @@
+---
+- name: Create photoprism mysql container
+  community.docker.docker_container:
+    name: photoprism-mariadb
+    image: mariadb:10.11
+    pull: true
+    state: started
+    restart_policy: unless-stopped
+    command: mariadbd --innodb-buffer-pool-size=512M --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
+    volumes:
+      - "{{ docker_dir }}/photoprism/db:/var/lib/mysql"
+    networks:
+      - name: homelab
+    env:
+      MARIADB_AUTO_UPGRADE: "1"
+      TZ: "{{ timezone }}"
+      MYSQL_ROOT_PASSWORD: "{{ photoprism_mysql_root_password }}"
+      MYSQL_DATABASE: "{{ photoprism_mysql_db }}"
+      MYSQL_USER: "{{ photoprism_mysql_user }}"
+      MYSQL_PASSWORD: "{{ photoprism_mysql_password }}"

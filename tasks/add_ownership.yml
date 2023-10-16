@@ -1,0 +1,35 @@
+---
+- name: Add required permissions to data and docker_apps directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    recurse: true
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0755"
+  loop:
+    - "{{ data_dir }}"
+    - "{{ docker_dir }}/authelia"
+    - "{{ docker_dir }}/dashdot"
+    - "{{ docker_dir }}/duplicati"
+    - "{{ docker_dir }}/filebrowser"
+    - "{{ docker_dir }}/heimdall"
+    - "{{ docker_dir }}/homarr"
+    - "{{ docker_dir }}/monitoring"
+    - "{{ docker_dir }}/workflow"
+    - "{{ docker_dir }}/plex"
+    - "{{ docker_dir }}/nextcloud"
+    - "{{ docker_dir }}/photoprism"
+    - "{{ docker_dir }}/portainer"
+    - "{{ docker_dir }}/prowlarr"
+    - "{{ docker_dir }}/qbittorrent"
+    - "{{ docker_dir }}/radarr"
+    - "{{ docker_dir }}/requestrr"
+    - "{{ docker_dir }}/sonarr"
+    - "{{ docker_dir }}/syncthing"
+    # - "{{ docker_dir }}/traefik"
+    - "{{ docker_dir }}/unmanic"
+    - "{{ docker_dir }}/uptime_kuma"
+    - "{{ docker_dir }}/vaultwarden"
+    - "{{ docker_dir }}/watchtower"
+    - "{{ docker_dir }}/wireguard"

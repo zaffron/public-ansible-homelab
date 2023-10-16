@@ -1,0 +1,64 @@
+---
+- name: Setup the homeserver
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Update server and install essential packages
+      ansible.builtin.include_tasks: tasks/essential.yml
+
+    - name: Install docker
+      ansible.builtin.include_tasks: tasks/docker.yml
+
+    - name: Deploy docker apps
+      ansible.builtin.include_tasks: "tasks/{{ item }}.yml"
+      loop:
+        # - authelia
+        # - flaresolverr
+        # - calibre
+        # - calibre-web
+        # - dashdot
+        # - duplicati
+        # - filebrowser
+        # - heimdall
+        # - homarr
+        - monitoring
+        # - nextcloud
+        # - photoprism
+        # - photoprism_mysql
+        # - pihole
+        # - plex
+        # - portainer
+        # - prowlarr
+        # - qbittorrent
+        # - radarr
+        # - readarr
+        # - requestrr
+        # - sonarr
+        # - syncthing
+        # - traefik
+        # - unmanic
+        # - uptime_kuma
+        # - vaultwarden
+        # - watchtower
+        # - wireguard
+        # - workflow
+
+    - name: Modify ownership of data and docker_apps directories
+      ansible.builtin.include_tasks: tasks/add_ownership.yml
+
+    # - name: Reboot the server
+    #   ansible.builtin.reboot:
+    #     msg: "Rebooting server to finish setup"
+
+    # - name: Wait to ensure authelia is up and running
+    #   ansible.builtin.wait_for:
+    #     timeout: 10
+    #   when: traefik_authelia_check.status != 200
+
+    # - name: Restart traefik container to ensure it can find authelia middleware
+    #   community.docker.docker_container:
+    #     name: traefik
+    #     state: started
+    #     restart: true
+    #   when: traefik_authelia_check.status != 200

@@ -1,0 +1,20 @@
+---
+- name: Create flaresolverr container
+  community.docker.docker_container:
+    name: flaresolverr
+    image: ghcr.io/flaresolverr/flaresolverr
+    pull: true
+    state: started
+    restart_policy: unless-stopped
+    env:
+      PUID: "{{ puid }}"
+      PGID: "{{ pgid }}"
+      TZ: "{{ timezone }}"
+      LOG_LEVEL: "debug"
+      LOG_HTML: "true"
+      CAPTCHA_SOLVER: "hcaptcha-solver"
+      TZ: "{{ timezone_title_case }}"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    networks:
+      - name: homelab

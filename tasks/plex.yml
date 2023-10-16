@@ -1,0 +1,48 @@
+---
+- name: Create plex container
+  community.docker.docker_container:
+    name: plex
+    image: plexinc/pms-docker:latest
+    pull: true
+    state: started
+    restart_policy: unless-stopped
+    security_opts:
+      - no-new-privileges:true
+    env:
+      PUID: "{{ puid }}"
+      PGID: "{{ pgid }}"
+      TZ: "{{ timezone }}"
+      VERSION: "docker"
+      PLEX_CLAIM: "{{ plex_claim }}"
+    volumes:
+      - "{{ docker_dir }}/plex/config:/config"
+      - "{{ data_dir }}/media/movies:/movies"
+      - "{{ data_dir }}/media/tv:/tv"
+      - "/dev/bus/usb:/dev/bus/usb"
+    ports:
+      - 7359:7359/udp
+      - 1900:1900/udp
+      - 32400:32400
+      - 5353:5353/udp
+      - 8324:8324
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+      - 32469:32469
+    networks:
+      - name: homelab
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.plex.entrypoints: "http"
+      traefik.http.routers.plex.rule: "Host(`plex.{{ domain }}`)"
+      traefik.http.middlewares.plex-https-redirect.redirectscheme.scheme: "https"
+      traefik.http.routers.plex.middlewares: "plex-https-redirect"
+      traefik.http.routers.plex-secure.entrypoints: "https"
+      traefik.http.routers.plex-secure.rule: "Host(`plex.{{ domain }}`)"
+      traefik.http.routers.plex-secure.tls: "true"
+      traefik.http.routers.plex-secure.service: "plex"
+      traefik.http.routers.plex-secure.middlewares: "authelia@docker"
+      traefik.http.services.plex.loadbalancer.server.port: "32400"
+      traefik.docker.network: "homelab"
+      com.centurylinklabs.watchtower.enable: "true"

@@ -1,0 +1,65 @@
+- name: Create photoprism container
+  community.docker.docker_container:
+    name: photoprism
+    image: photoprism/photoprism:latest
+    pull: true
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - 2342:2342
+    networks:
+      - name: homelab
+    volumes:
+      - "{{ docker_dir }}/photoprism/app:/photoprism"
+      - "{{ docker_dir }}/photoprism/storage:/photoprism/storage"
+      - "{{ docker_dir }}/photoprism/originals:/photoprism/originals"
+      - "{{ docker_dir }}/photoprism/videos:/photoprism/originals/videos"
+      - "{{ docker_dir }}/photoprism/import:/photoprism/import"
+    env:
+      PUID: "{{ puid }}"
+      PGID: "{{ pgid }}"
+      PHOTOPRISM_GID: "{{ puid }}"
+      PHOTOPRISM_UID: "{{ pgid }}"
+      TZ: "{{ timezone }}"
+      PHOTOPRISM_ADMIN_USER: "{{ username }}"
+      PHOTOPRISM_ADMIN_PASSWORD: "{{ photoprism_admin_password }}"
+      PHOTOPRISM_SITE_URL: "http://{{ ip_address }}:2342"
+      PHOTOPRISM_EXPERIMENTAL: "false"
+      PHOTOPRISM_HTTP_COMPRESSION: "gzip"
+      PHOTOPRISM_AUTH_MODE: "password"
+      PHOTOPRISM_DATABASE_DRIVER: "mysql"
+      PHOTOPRISM_DATABASE_SERVER: "photoprism-mariadb:3306"
+      PHOTOPRISM_DATABASE_NAME: "{{ photoprism_mysql_db }}"
+      PHOTOPRISM_DATABASE_USER: "{{ photoprism_mysql_user }}"
+      PHOTOPRISM_DATABASE_PASSWORD: "{{ photoprism_mysql_password }}"
+      PHOTOPRISM_SITE_CAPTION: "Mirage of Life"
+      PHOTOPRISM_DISABLE_CHOWN: "false"
+      PHOTOPRISM_DISABLE_BACKUPS: "true"
+      PHOTOPRISM_DISABLE_WEBDAV: "false"
+      PHOTOPRISM_DETECT_NSFW: "false"
+      PHOTOPRISM_UPLOAD_NSFW: "false"
+      PHOTOPRISM_DEBUG: "true"
+      PHOTOPRISM_THUMB_FILTER: "lanczos"
+      PHOTOPRISM_THUMB_UNCACHED: "true"
+      PHOTOPRISM_THUMB_SIZE: "2048"
+      PHOTOPRISM_THUMB_SIZE_UNCACHED: "7680"
+      PHOTOPRISM_READONLY: "false"
+      PHOTOPRISM_JPEG_SIZE: "7680"
+      PHOTOPRISM_JPEG_QUALITY: "92"
+      TF_CPP_MIN_LOG_LEVEL: "0"
+      PHOTOPRISM_FFMPEG_ENCODER: "h264_qsv"
+      # PHOTOPRISM_INIT: "https gpu tensorflow"
+      # PHOTOPRISM_INIT: "tensorflow-amd64-avx2"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.photoprism.entrypoints: "http"
+      traefik.http.routers.photoprism.rule: "Host(`photoprism.{{ domain }}`)"
+      traefik.http.middlewares.photoprism-https-redirect.redirectscheme.scheme: "https"
+      traefik.http.routers.photoprism.middlewares: "photoprism-https-redirect"
+      traefik.http.routers.photoprism-secure.entrypoints: "https"
+      traefik.http.routers.photoprism-secure.rule: "Host(`photoprism.{{ domain }}`)"
+      traefik.http.routers.photoprism-secure.tls: "true"
+      traefik.http.routers.photoprism-secure.service: "photoprism"
+      traefik.http.services.photoprism.loadbalancer.server.port: "2342"
+      traefik.docker.network: "homelab"
+      com.centurylinklabs.watchtower.enable: "true"

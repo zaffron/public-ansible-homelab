@@ -1,0 +1,30 @@
+---
+- name: Create heimdall container
+  community.docker.docker_container:
+    name: heimdall
+    image: lscr.io/linuxserver/heimdall
+    pull: true
+    state: started
+    restart_policy: unless-stopped
+    env:
+      PUID: "{{ puid }}"
+      PGID: "{{ pgid }}"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ docker_dir }}/heimdall/config:/config"
+    networks:
+      - name: homelab
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.heimdall.entrypoints: "http"
+      traefik.http.routers.heimdall.rule: "Host(`{{ domain }}`)"
+      traefik.http.middlewares.heimdall-https-redirect.redirectscheme.scheme: "https"
+      traefik.http.routers.heimdall.middlewares: "heimdall-https-redirect"
+      traefik.http.routers.heimdall-secure.entrypoints: "https"
+      traefik.http.routers.heimdall-secure.rule: "Host(`{{ domain }}`)"
+      traefik.http.routers.heimdall-secure.tls: "true"
+      traefik.http.routers.heimdall-secure.service: "heimdall"
+      traefik.http.routers.heimdall-secure.middlewares: "authelia@docker"
+      traefik.http.services.heimdall.loadbalancer.server.port: "80"
+      traefik.docker.network: "homelab"
+      com.centurylinklabs.watchtower.enable: "true"

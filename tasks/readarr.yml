@@ -1,0 +1,33 @@
+---
+- name: Create readarr container
+  community.docker.docker_container:
+    name: readarr
+    image: lscr.io/linuxserver/readarr:develop
+    pull: true
+    state: started
+    restart_policy: unless-stopped
+    env:
+      PUID: "{{ puid }}"
+      PGID: "{{ pgid }}"
+      TZ: "{{ timezone }}"
+      DOCKER_MODS: ghcr.io/gilbn/theme.park:readarr
+    volumes:
+      - "{{ docker_dir }}/readarr/config:/config"
+      - "{{ data_dir }}/books:/books"
+      - "{{ data_dir }}/downloads:/downloads"
+    networks:
+      - name: homelab
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.readarr.entrypoints: "http"
+      traefik.http.routers.readarr.rule: "Host(`readarr.{{ domain }}`)"
+      traefik.http.middlewares.readarr-https-redirect.redirectscheme.scheme: "https"
+      traefik.http.routers.readarr.middlewares: "readarr-https-redirect"
+      traefik.http.routers.readarr-secure.entrypoints: "https"
+      traefik.http.routers.readarr-secure.rule: "Host(`readarr.{{ domain }}`)"
+      traefik.http.routers.readarr-secure.tls: "true"
+      traefik.http.routers.readarr-secure.service: "readarr"
+      traefik.http.routers.readarr-secure.middlewares: "authelia@docker"
+      traefik.http.services.readarr.loadbalancer.server.port: "8787"
+      traefik.docker.network: "homelab"
+      com.centurylinklabs.watchtower.enable: "true"
